@@ -1,6 +1,11 @@
 import discord.ext.commands
 import config, event, plugin
+import logging
+import os
 
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
+logger = logging.getLogger("jabberwocky")
+logger.info("Started")
 
 class Bot(discord.ext.commands.Bot):
     def __init__(self, command_prefix="@"):
@@ -9,14 +14,14 @@ class Bot(discord.ext.commands.Bot):
         self.config = config.Config()
         self.plugin_manager = plugin.PluginManager()
 
-    def run_(self):
+    def run(self):
         super().run(self.config["key"])
 
     def load_config(self):
         self.config.load_config()
 
     async def on_ready(self):
-        print("READY")
+        logger.info("READY")
 
     async def on_message(self, message):
         if message.author == self.user:
