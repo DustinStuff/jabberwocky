@@ -1,6 +1,7 @@
 import event
 import discord
-
+from bot import bot
+import time
 # @event.message
 # async def on_message(message: discord.Message):
 #     print("{}: {}".format(message.author.display_name, message.content))
@@ -8,7 +9,8 @@ import discord
 
 @event.message
 async def on_message(message: discord.Message):
-    if message.channel.name == "bottest_":
-        if message.author.display_name == "Dustin":
-            await message.channel.send("Hi")
-        return
+    if bot.config["print_output"]:
+        t = time.strftime("%Y-%m-%d-%H:%M:%S", time.gmtime())
+        server = message.guild.name
+        user = message.author.name
+        print("{}/{}/{}/ {}".format(server, t, user, message.content))
