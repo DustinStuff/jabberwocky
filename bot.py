@@ -2,18 +2,7 @@ import discord.ext.commands
 import config, event, plugin
 
 
-class Singleton(type):
-    _instances = {}
-    
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-    
-
 class Bot(discord.ext.commands.Bot):
-    __metaclass__ = Singleton
-
     def __init__(self, command_prefix="@"):
         super().__init__(command_prefix=command_prefix)
         self.counter = 1
