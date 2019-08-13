@@ -12,5 +12,6 @@ async def on_message(message: discord.Message):
     if bot.config["print_output"]:
         t = time.strftime("%Y-%m-%d-%H:%M:%S", time.gmtime())
         server = message.guild.name
+        channel = message.channel.name
         user = message.author.name
-        print("{}/{}/{}/ {}".format(server, t, user, message.content))
+        print("{}#{}/{}/{}/ {}".format(server, channel, t, user, message.content))
