@@ -1,5 +1,7 @@
 {
   "key": "",
-  "config_file": "config.json",
-  "plugin_directory": "plugins"
+  "plugins": {
+    "plugin_directory": "plugins",
+    "disabled_plugins": []
+  }
 }

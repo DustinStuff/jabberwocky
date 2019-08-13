@@ -13,4 +13,4 @@ class Config(dict):
     def load_config(self):
         with open(self.path) as f:
             self.update(json.load(f))
-            print(self.keys())
+            #print(self.keys())
