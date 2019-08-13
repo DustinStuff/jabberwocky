@@ -1,9 +1,41 @@
 import discord
+import enum
 from functools import wraps
 
-_message_handlers = []
-_ready_handlers = []
-_command_handlers = []
+_handlers = {"command": [], "message": []}
+
+
+class Event:
+    def __init__(self, module: str, handler):
+        self.module = module
+        self._handler = handler
+
+    async def execute(self, *args, **kwargs):
+        await self._handler(*args, **kwargs)
+
+
+class MessageEvent(Event):
+    pass
+
+
+class CommandEvent(Event):
+    def __init__(self, module, handler, aliases=[]):
+        super().__init__(module, handler)
+        self.aliases = aliases
+
+    async def execute(self, *args, **kwargs):
+        msg = kwargs["message"]
+        content = msg.content.split()[1:]
+        kwargs_ = {"message": msg, "content": content}
+        await self._handler(*args, **kwargs_)
+
+
+def _add_handler(handler: Event, type_):
+    _handlers[type_].append(handler)
+    """
+    _handlers = {
+    "commands": [CommandEvent, CommandEvent_2, etc]
+    """
 
 
 def message(func):
@@ -12,24 +44,17 @@ def message(func):
         f = await func(msg)
         if type(f) is str:
             await msg.channel.send(f)
-    _message_handlers.append(wrapper)
+    _add_handler(MessageEvent(func.__module__, wrapper), "message")
     return wrapper
 
 
 async def emit_message(msg):
-    for f in _message_handlers:
-        await f(msg)
+    for f in _handlers["message"]:
+        await f.execute(msg)
 
 
 def command(alias=[]):
-    command_info = {"aliases": []}
-
     def decorator(func):
-        if len(alias) == 0:
-            command_info["aliases"].append(func.__name__)
-        else:
-            command_info["aliases"] = alias
-
         @wraps(func)
         async def wrapper(*args, **kwargs):
             msg = kwargs["message"]
@@ -38,19 +63,23 @@ def command(alias=[]):
             if type(f) is str:
                 await msg.channel.send(f)
 
-        command_info["handler"] = wrapper
+        cmd = CommandEvent(func.__module__, wrapper, alias)
+        if len(alias) > 0:
+            cmd.aliases = alias
+        else:
+            cmd.aliases = [func.__name__]
+
+        _add_handler(cmd, "command")
         return wrapper
 
-    _command_handlers.append(command_info)
     return decorator
 
 
-async def emit_command(message):
-    content = message.content.split()
+async def emit_command(msg):
+    content = msg.content.split()
     command_word = content[0][1:]
 
-    for c in _command_handlers:
-        if command_word in c["aliases"]:
-            f = c["handler"]
-            await f(message=message, content=content)
+    for c in _handlers["command"]:
+        if command_word in c.aliases:
+            await c.execute(message=msg, content=content)
 

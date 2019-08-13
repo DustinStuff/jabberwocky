@@ -20,6 +20,13 @@ class Bot(discord.ext.commands.Bot):
     def load_config(self):
         self.config.load_config()
 
+    def load_plugin(self, name):
+        pass
+
+    def unload_plugin(self, name):
+        event.remove(name)
+        self.plugin_manager.unload(name)
+
     async def on_ready(self):
         logger.info("READY")
 
