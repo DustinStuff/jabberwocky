@@ -8,7 +8,7 @@ logger = logging.getLogger("jabberwocky")
 logger.info("Started")
 
 class Bot(discord.ext.commands.Bot):
-    def __init__(self, command_prefix="@"):
+    def __init__(self, command_prefix="?"):
         super().__init__(command_prefix=command_prefix)
         self.counter = 1
         self.config = config.Config()
