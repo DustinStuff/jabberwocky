@@ -33,6 +33,13 @@ def _add_handler(handler: Event, type_):
     """
 
 
+def remove_handler(event: str):
+    for k, v in _handlers.items():
+        for i in v:
+            if i.module == "plugins." + event:
+                v.remove(i)
+
+
 def message(func):
     @wraps(func)
     async def wrapper(msg):
