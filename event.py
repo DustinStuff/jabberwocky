@@ -1,5 +1,6 @@
 import discord
 import enum
+import inspect
 from functools import wraps
 
 _handlers = {"command": [], "message": []}
@@ -22,12 +23,6 @@ class CommandEvent(Event):
     def __init__(self, module, handler, aliases=[]):
         super().__init__(module, handler)
         self.aliases = aliases
-
-    async def execute(self, *args, **kwargs):
-        msg = kwargs["message"]
-        content = msg.content.split()[1:]
-        kwargs_ = {"message": msg, "content": content}
-        await self._handler(*args, **kwargs_)
 
 
 def _add_handler(handler: Event, type_):
@@ -55,11 +50,19 @@ async def emit_message(msg):
 
 def command(alias=[]):
     def decorator(func):
+
         @wraps(func)
         async def wrapper(*args, **kwargs):
             msg = kwargs["message"]
-            content = kwargs["content"]
-            f = await func(*args, **kwargs)
+            content = msg.content.split()
+            content = " ".join(content[1:])
+            kwargs_ = dict()
+            kwargs_["message"] = msg
+            params = inspect.signature(func).parameters
+            if "content" in params.keys():
+                kwargs_["content"] = content
+
+            f = await func(*args, **kwargs_)
             if type(f) is str:
                 await msg.channel.send(f)
 
@@ -81,5 +84,5 @@ async def emit_command(msg):
 
     for c in _handlers["command"]:
         if command_word in c.aliases:
-            await c.execute(message=msg, content=content)
+            await c.execute(message=msg)
 
