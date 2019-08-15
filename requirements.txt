@@ -2,3 +2,4 @@ discord.py
 sqlalchemy
 toml
 requests
+xdice

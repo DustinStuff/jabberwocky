@@ -17,4 +17,5 @@ async def update(message, content):
             remote_plugin = requests.get(entry["download_url"])
             with open("plugins/{}".format(c[0]), "w") as f:
                 f.write(remote_plugin.text)
+            bot.reload_plugin(c[0].split(".")[0])  # TODO: This is hacky
             return "Success"
