@@ -7,12 +7,15 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 logger = logging.getLogger("jabberwocky")
 logger.info("Started")
 
-class Bot(discord.ext.commands.Bot):
-    def __init__(self, command_prefix="?"):
-        super().__init__(command_prefix=command_prefix)
+
+class Bot(discord.Client):
+    def __init__(self):
+        super().__init__()
         self.counter = 1
         self.config = config.Config()
         self.plugin_manager = plugin.PluginManager()
+
+        self.command_prefix = self.config["command_prefix"]
 
     def run(self):
         super().run(self.config["key"])
@@ -40,7 +43,6 @@ class Bot(discord.ext.commands.Bot):
         if message.content[0] == self.command_prefix:
             await event.emit_command(message)
         await event.emit_message(message)
-        await self.process_commands(message)
 
 
 bot = Bot()
